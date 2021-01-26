@@ -69,7 +69,6 @@ object Jackson {
 
       //发生异常的地方在readTree函数，如果发生异常，resultsMap
       case Success(value) => resultsMap //返回结果
-      //      case Failure(exception) => new util.HashMap[String, Any] //返回空map
       case Failure(exception) => resultsMap
     }
   }
