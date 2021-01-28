@@ -1,10 +1,11 @@
 package qm.flink
 
 import qm.jackson.Jackson
+import qm.model.ActionItem
 
 import java.util
-import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
+
 
 /**
  * @ClassName: Analysis
@@ -20,12 +21,11 @@ object Analysis {
    * @param x 要处理的数据，json字符串 
    * @return 返回搜索结果
    */
-  def analysis(x: String): Array[(String, Any)] = {
+  def analysis(x: String): Array[ActionItem] = {
 
-    val tuples: ArrayBuffer[(String, Any)] = new ArrayBuffer[(String, Any)]()
     val collections: Array[String] = x.split("#QM#MQ#")
     if (collections.length < 2) {
-      return Array(("",""))
+      return Array(ActionItem("", "", "", "", ""))
     }
     val head: String = collections(0)
     val tail: String = collections(1)
@@ -37,19 +37,50 @@ object Analysis {
     Jackson.autoParseJson(head, headMap)
     Jackson.autoParseJson(tail, tailMap)
 
-    val keys = headMap.keySet()
-    val tails = tailMap.keySet()
+    //创建时间
+    val ctime = headMap.getOrDefault("ctime", "").toString
 
+    //用户的IP地址
+    val ip = headMap.getOrDefault("ip", "").toString
 
-    for (key <- keys) {
-      tuples.append((key, headMap.get(key)))
+    //取出单条埋点数据的信息
+    val project = tailMap.getOrDefault("projects", "").toString
+
+    //设备id
+    val deviceId = tailMap.getOrDefault("device_id", "").toString
+
+    if (project.isEmpty) {
+      return Array(ActionItem(ip, deviceId, "", "", ctime))
     }
 
-    for (tailKey <- tails) {
-      tuples.append((tailKey, tailMap.get(tailKey)))
+    val events = parseProjects(project)
+
+    val results = new ArrayBuffer[ActionItem]()
+
+    for (event <- events) {
+      results.append(ActionItem(ip, deviceId, event._1, event._2, ctime))
+    }
+    results.toArray
+  }
+
+  def parseProjects(projectStr: String): Array[(String, String)] = {
+
+    // json数组转数组
+    val projects: Array[AnyRef] = Jackson.string2Array(projectStr)
+
+    val eventTuple = new ArrayBuffer[(String, String)]()
+
+    //数组不为空
+    if (!projects.isEmpty) {
+      val eventMap = new util.HashMap[String, Any]()
+      for (project <- projects) {
+        Jackson.autoParseJson(project.toString, eventMap)
+        val eventName = eventMap.getOrDefault("event_name", "").toString
+        val eventDataStr = eventMap.getOrDefault("event_data", "").toString
+        eventTuple.append((eventName, eventDataStr))
+      }
     }
 
-    tuples.toArray
-
+    eventTuple.toArray
   }
 }
