@@ -6,6 +6,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 import qm.kafka.KafkaConsumer
 
 
+
 /**
  * @ClassName: Flink
  * @Description: TODO
@@ -30,9 +31,11 @@ object FlinkEntry {
       // 数据处理流程
       Analysis.analysis(x)
     })
-      .map(x => {
-        x.mkString("{", ",", "}")
-      })
+      //将数组压平
+      .flatMap(x => x)
+      //过滤掉不合理的数据
+      .filter(x => x.eventName.nonEmpty)
+
       .executeAndCollect()
       .foreach(println)
 
