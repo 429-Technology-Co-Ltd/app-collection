@@ -35,7 +35,11 @@ object FlinkEntry {
       .flatMap(x => x)
       //过滤掉不合理的数据
       .filter(x => x.eventName.nonEmpty)
+      .map(item => {
 
+        // TODO:  事件后续处理
+        item
+      })
       .executeAndCollect()
       .foreach(println)
 

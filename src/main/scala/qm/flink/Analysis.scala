@@ -71,7 +71,7 @@ object Analysis {
     val eventTuple = new ArrayBuffer[(String, String)]()
 
     //数组不为空
-    if (!projects.isEmpty) {
+    if (projects.nonEmpty) {
       val eventMap = new util.HashMap[String, Any]()
       for (project <- projects) {
         Jackson.autoParseJson(project.toString, eventMap)
