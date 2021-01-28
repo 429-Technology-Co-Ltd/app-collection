@@ -1,11 +1,12 @@
 package qm.jackson
 
-import java.util
+import com.alibaba.fastjson.JSON
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.{DefaultScalaModule, ScalaObjectMapper}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
-
+import java.util
 import scala.util.{Failure, Success, Try}
+
 
 /**
  * @ClassName: Jackson
@@ -71,5 +72,9 @@ object Jackson {
       case Success(value) => resultsMap //返回结果
       case Failure(exception) => resultsMap
     }
+  }
+
+  def string2Array(line: String): Array[AnyRef] = {
+    JSON.parseArray(line).toArray
   }
 }
