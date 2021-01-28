@@ -240,7 +240,7 @@
                     <archive>
                         <manifest>
                             <!-- 主类 -->
-                            <mainClass>qm.qiaomeng.qm.entry.Entry</mainClass>
+                            <mainClass>qm.entry.Entry</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
