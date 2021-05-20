@@ -20,7 +20,7 @@
         <hadoop.version>3.0.0-cdh6.3.1</hadoop.version>
         <hbase.version>2.1.0-cdh6.3.1</hbase.version>
         <indexer.version>1.5-cdh6.3.1</indexer.version>
-        <hive.version>2.1.1-cdh6.3.1</hive.version>
+        <hive.version>2.3.4</hive.version>
         <kafka.version>2.2.1-cdh6.3.1</kafka.version>
         <kitesdk.version>1.0.0-cdh6.3.1</kitesdk.version>
         <kudu.version>1.10.0-cdh6.3.1</kudu.version>
