@@ -10,8 +10,8 @@ import scala.collection.mutable.ArrayBuffer
 /**
  * @ClassName: Analysis
  * @Description: TODO
- * @Create by: LinYoung
- * @Date: 2020/12/24 12:33
+ * @Create
+ * @Date: 2021/2/11 12:33
  */
 object Analysis {
 
@@ -22,10 +22,11 @@ object Analysis {
    * @return 返回搜索结果
    */
   def analysis(x: String): Array[ActionItem] = {
+    //按照指定的字符进行切割
 
     val collections: Array[String] = x.split("#QM#MQ#")
     if (collections.length < 2) {
-      return Array(ActionItem("", "", "", "", ""))
+      return Array(ActionItem("", "", "", "0", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""))
     }
     val head: String = collections(0)
     val tail: String = collections(1)
@@ -38,7 +39,7 @@ object Analysis {
     Jackson.autoParseJson(tail, tailMap)
 
     //创建时间
-    val ctime = headMap.getOrDefault("ctime", "").toString
+    val ctime = (java.lang.Long.valueOf(headMap.getOrDefault("ctime", 0L).toString) / 1000).toString
 
     //用户的IP地址
     val ip = headMap.getOrDefault("ip", "").toString
@@ -50,7 +51,7 @@ object Analysis {
     val deviceId = tailMap.getOrDefault("device_id", "").toString
 
     if (project.isEmpty) {
-      return Array(ActionItem(ip, deviceId, "", "", ctime))
+      return Array(ActionItem(ip, deviceId, "", ctime, "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""))
     }
 
     val events = parseProjects(project)
@@ -58,7 +59,27 @@ object Analysis {
     val results = new ArrayBuffer[ActionItem]()
 
     for (event <- events) {
-      results.append(ActionItem(ip, deviceId, event._1, event._2, ctime))
+      val eventMap = new util.HashMap[String, Any]()
+      Jackson.autoParseJson(event._2, eventMap)
+      val page_id = eventMap.getOrDefault("page_id", "").toString
+      val last_page_id = eventMap.getOrDefault("last_page_id", "").toString
+      val appear_time = eventMap.getOrDefault("appear_time", "").toString
+      val disappear_time = eventMap.getOrDefault("disappear_time", "").toString
+      val extras = eventMap.getOrDefault("extras", "").toString
+      val click_id = eventMap.getOrDefault("click_id", "").toString
+      val click_time = eventMap.getOrDefault("click_time", "").toString
+      val exposure_id = eventMap.getOrDefault("exposure_id", "").toString
+      val exposure_time = eventMap.getOrDefault("exposure_time", "").toString
+      val extras_map = new util.HashMap[String, Any]()
+      Jackson.autoParseJson(extras, extras_map)
+      val user_id = extras_map.getOrDefault("user_id", "").toString
+      val source = extras_map.getOrDefault("source", "").toString
+      val itemId = extras_map.getOrDefault("itemId", "").toString
+      val platform = extras_map.getOrDefault("platform", "").toString
+      val inter = eventMap.getOrDefault("inter", "").toString
+      val app_channel = eventMap.getOrDefault("app_channel", "").toString
+      val app_version = eventMap.getOrDefault("app_version", "").toString
+      results.append(ActionItem(ip, deviceId, event._1, ctime, page_id, last_page_id, appear_time, disappear_time, click_id, click_time, exposure_id, exposure_time, inter, app_channel, app_version, user_id, source, itemId, platform))
     }
     results.toArray
   }
@@ -77,7 +98,14 @@ object Analysis {
         Jackson.autoParseJson(project.toString, eventMap)
         val eventName = eventMap.getOrDefault("event_name", "").toString
         val eventDataStr = eventMap.getOrDefault("event_data", "").toString
-        eventTuple.append((eventName, eventDataStr))
+
+        // 解析eventData
+        val eventdata = Jackson.string2Array(eventDataStr)
+        for (data <- eventdata) {
+
+          eventTuple.append((eventName, data.toString))
+        }
+
       }
     }
 

@@ -21,8 +21,8 @@ object Jackson {
 
   /**
    *
-   * @param value
-   * @return
+   * @param value 要转换的bean类
+   * @return json字符串
    */
   def bean2String(value: Any): String = {
     mapper.writeValueAsString(value)
@@ -74,6 +74,11 @@ object Jackson {
     }
   }
 
+  /**
+   *
+   * @param line
+   * @return
+   */
   def string2Array(line: String): Array[AnyRef] = {
     JSON.parseArray(line).toArray
   }
